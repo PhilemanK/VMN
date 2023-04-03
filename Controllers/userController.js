@@ -7,8 +7,9 @@ const bcrypt = require('bcrypt')
 //Importing joi
 const Joi = require('joi')
 
-//Importing userModel
+//Importing userModel mentorModel
 const User = require('../Models/userModel')
+const Mentor = require('../Models/mentorModel')
 
 // Joi postValidation
 const postValidation = Joi.object({
@@ -120,9 +121,6 @@ const signupUser = asyncHandler(async (req, res) => {
   }
 })
 
-
-
-
 //LOGIN
 // @desc GET USER
 // GET /login
@@ -156,7 +154,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
 })
 
-
 //UPDATE
 const updateUser = asyncHandler( async (req, res) => {
   const { id } = req.params;
@@ -185,6 +182,19 @@ const updateUser = asyncHandler( async (req, res) => {
     .catch(err => res.json(err));
 });
 
+//homepageUser
+const homepageUser = asyncHandler( async (req, res) => {
+
+  try {
+    const mentors = await Mentor.find({ domain: 'abc' });
+    res.json(mentors);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+
+})
+
+
 
 //Generate JWT
 const generateToken = (id) => {
@@ -197,5 +207,5 @@ const generateToken = (id) => {
 
 //Exporting userController
 module.exports = {
-  signupUser, loginUser, updateUser,
+  signupUser, loginUser, updateUser, homepageUser
 }
