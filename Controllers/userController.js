@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 //Importing joi
 const Joi = require('joi')
+const { protect } = require('../Middleware/authMiddleware');
+
 //Importing userModel
 const User = require('../Models/userModel')
 
@@ -60,8 +62,6 @@ const postValidation = Joi.object({
 // POST /signup
 // access PUBLIC
 const signupUser = asyncHandler(async (req, res) => {
-
-
 
   //Validation
   const { firstname, lastname, email, password,  number, domain, subdomain, linkedin, github, error } = await postValidation.validateAsync(req.body);
@@ -147,7 +147,7 @@ const loginUser = asyncHandler(async (req, res) => {
           domain: user.domain,
           subdomain: user.subdomain,
           github: user.github,
-            token: generateToken(user._id)
+          token: generateToken(user._id)
         });
     }
     else{
@@ -158,22 +158,33 @@ const loginUser = asyncHandler(async (req, res) => {
 })
 
 
+//UPDATE
+const updateUser = asyncHandler( async (req, res) => {
+  const { id } = req.params;
+  const {firstname, lastname, email, password, number, domain, subdomain, certifications, experience, github } = req.body;
 
-//Me
-// @desc PATCH USER
-// GET /users/:id
-// access PRIVATE
-const meUser = asyncHandler(async (req, res) => {
-    const { _id, fname, lname, email } = await User.findById(req.user.id)
+  try {
+    // Check if user is authorized
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    if (decoded.id !== id) {
+      res.status(401)
+      throw new Error('Not authorized')
+    }
+  }catch (error) {
+    console.log(error)
+    res.status(401)
+    throw new Error('Not authorized')
+  }
 
-    res.status(200).json({
-        id: _id,
-        fname,
-        lname,
-        email,
-    })
-})
+  //Hashing password
+  const salt = await bcrypt.genSalt(10)
+  const hashPassword = await bcrypt.hash(req.body.password, salt)
 
+  User.findByIdAndUpdate(id, { firstname, lastname, email, password: hashPassword, number, domain, subdomain, certifications, experience, github }, { new: true })
+    .then(user => res.json(user))
+    .catch(err => res.json(err));
+});
 
 
 //Generate JWT
@@ -187,5 +198,5 @@ const generateToken = (id) => {
 
 //Exporting userController
 module.exports = {
-  signupUser, loginUser, meUser
+  signupUser, loginUser, updateUser,
 }
