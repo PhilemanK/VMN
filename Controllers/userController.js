@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 //Importing joi
 const Joi = require('joi')
-const { protect } = require('../Middleware/authMiddleware');
 
 //Importing userModel
 const User = require('../Models/userModel')

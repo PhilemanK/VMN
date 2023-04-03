@@ -170,20 +170,33 @@ const loginMentor = asyncHandler(async (req, res) => {
 
 
 
-//Me
-// @desc ME MENTOR
-// GET /me
-// access PRIVATE
-const meMentor = asyncHandler(async (req, res) => {
-    const { _id, firstname, lastname, email } = await Mentor.findById(req.mentor.id)
-
-    res.status(200).json({
-        id: _id,
-        firstname,
-        lastname,
-        email,
-    })
-})
+//UPDATE
+const updateMentor = asyncHandler( async (req, res) => {
+    const { id } = req.params;
+    const {firstname, lastname, email, password, number, domain, subdomain, certifications, experience, github } = req.body;
+  
+    try {
+      // Check if user is authorized
+      const token = req.headers.authorization.split(' ')[1]
+      const decoded = jwt.verify(token, process.env.JWT_SECRET)
+      if (decoded.id !== id) {
+        res.status(401)
+        throw new Error('Not authorized')
+      }
+    }catch (error) {
+      console.log(error)
+      res.status(401)
+      throw new Error('Not authorized')
+    }
+  
+    //Hashing password
+    const salt = await bcrypt.genSalt(10)
+    const hashPassword = await bcrypt.hash(req.body.password, salt)
+  
+    Mentor.findByIdAndUpdate(id, { firstname, lastname, email, password: hashPassword, number, domain, subdomain, certifications, experience, github }, { new: true })
+      .then(mentor => res.json(mentor))
+      .catch(err => res.json(err));
+  });
 
 
 
@@ -198,5 +211,5 @@ const generateToken = (id) => {
 
 //Exporting userController
 module.exports = {
-  signupMentor, loginMentor, meMentor
+  signupMentor, loginMentor, updateMentor
 }
