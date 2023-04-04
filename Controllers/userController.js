@@ -195,6 +195,21 @@ const homepageUser = asyncHandler( async (req, res) => {
 })
 
 
+//searchUser
+const searchUser =  asyncHandler( async (req, res) => {
+
+  const { domain } = req.body;
+
+  try {
+    const mentors = await Mentor.find({ domain: domain });
+    res.json(mentors);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+
+})
+
+
 
 //Generate JWT
 const generateToken = (id) => {
@@ -207,5 +222,5 @@ const generateToken = (id) => {
 
 //Exporting userController
 module.exports = {
-  signupUser, loginUser, updateUser, homepageUser
+  signupUser, loginUser, updateUser, homepageUser, searchUser,
 }

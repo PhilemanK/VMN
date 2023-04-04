@@ -1,7 +1,7 @@
 //Importing Dependencies
 const express = require('express')
 const router = express.Router()
-const { signupUser, loginUser, updateUser, homepageUser } = require('../Controllers/userController')
+const { signupUser, loginUser, updateUser, homepageUser, searchUser } = require('../Controllers/userController')
 const {protect} = require('../Middleware/authMiddleware')
 
 
@@ -16,6 +16,9 @@ router.put('/:id', updateUser);
 
 //HOMEPAGE
 router.get('/homepageUser', homepageUser);
+
+//Search
+router.get('/searchUser', searchUser);
 
 
 
