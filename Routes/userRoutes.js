@@ -22,5 +22,7 @@ router.get('/searchUser', searchUser);
 
 
 
+
+
 //Exporting Router
 module.exports = router

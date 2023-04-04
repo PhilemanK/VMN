@@ -6,10 +6,13 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 //Importing joi
 const Joi = require('joi')
+const express = require('express');
+const app = express();
 
 //Importing userModel mentorModel
 const User = require('../Models/userModel')
 const Mentor = require('../Models/mentorModel')
+const Request = require('../Models/requestModel')
 
 // Joi postValidation
 const postValidation = Joi.object({
@@ -57,6 +60,7 @@ const postValidation = Joi.object({
 });
 
 
+
 //REGISTER
 // @desc POST USER
 // POST /signup
@@ -65,6 +69,8 @@ const signupUser = asyncHandler(async (req, res) => {
 
   //Validation
   const { firstname, lastname, email, password,  number, domain, subdomain, linkedin, github, error } = await postValidation.validateAsync(req.body);
+
+
   if (error) {
     res.status(400).json({ message: error.message });
     return;
@@ -184,7 +190,6 @@ const updateUser = asyncHandler( async (req, res) => {
 
 //homepageUser
 const homepageUser = asyncHandler( async (req, res) => {
-
   try {
     const mentors = await Mentor.find({ domain: 'abc' });
     res.json(mentors);
@@ -197,17 +202,15 @@ const homepageUser = asyncHandler( async (req, res) => {
 
 //searchUser
 const searchUser =  asyncHandler( async (req, res) => {
-
-  const { domain } = req.body;
-
+  const { email, domain, subdomain, firstname } = req.body;
   try {
-    const mentors = await Mentor.find({ domain: domain });
+    const mentors = await Mentor.find({ $or: [{ email }, { domain }, { subdomain }, { firstname }] });
     res.json(mentors);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-
 })
+
 
 
 
